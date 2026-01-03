@@ -1,0 +1,78 @@
+======================================================
+CHROME WEB STORE - PRIVACY PRACTICES TAB
+Copy/paste these answers into each field
+======================================================
+
+------------------------------------------------------
+1. SINGLE PURPOSE DESCRIPTION
+------------------------------------------------------
+This extension adds a "More Examples" button to Readlang flashcard practice pages that generates additional example sentences using AI, helping users learn vocabulary words in context.
+
+------------------------------------------------------
+2. HOST PERMISSIONS JUSTIFICATION
+------------------------------------------------------
+Host permissions are required to make API calls to AI providers (Mistral AI, OpenAI, Anthropic Claude, Google Gemini, and OpenRouter) to generate example sentences. The extension sends the vocabulary word being studied to the user's selected AI provider and displays the generated examples on the page. No data is collected or sent elsewhere.
+
+------------------------------------------------------
+3. STORAGE PERMISSION JUSTIFICATION
+------------------------------------------------------
+Storage permission is required to save the user's settings locally, including their selected AI provider, API key, and optional model preference. This data is stored only on the user's device using Chrome's built-in storage API and is never sent to any external server.
+
+------------------------------------------------------
+4. REMOTE CODE JUSTIFICATION
+------------------------------------------------------
+This extension does not use remote code. All JavaScript is bundled within the extension package. The only external requests are API calls to AI providers (selected by the user) to generate example sentences, which return text data only, not executable code.
+
+------------------------------------------------------
+5. DATA USE CERTIFICATION (Checkboxes)
+------------------------------------------------------
+Check the following:
+☑ I certify that the item's data usage complies with the Developer Program Policies
+
+For "Does your extension collect or use personal or sensitive user data?"
+Select: YES
+
+Then check these data types:
+☑ Authentication information (API keys)
+
+For each checked item, you must answer:
+- "Is this data being collected?" → Yes
+- "Is this data being shared with third parties?" → Yes (sent to AI providers)
+- "Reason for collection" → "Required to authenticate API requests to user's chosen AI provider"
+
+------------------------------------------------------
+6. PRIVACY POLICY URL
+------------------------------------------------------
+You need to host your privacy policy online first. Options:
+
+Option A - GitHub (if you pushed to GitHub):
+https://github.com/YOUR_USERNAME/readlang-example/blob/main/privacy_policy.md
+
+Option B - GitHub Pages:
+https://YOUR_USERNAME.github.io/readlang-example/privacy_policy
+
+Option C - Google Docs:
+1. Create new Google Doc
+2. Paste content from privacy_policy.md
+3. File → Share → Publish to web
+4. Copy the published URL
+
+======================================================
+ACCOUNT TAB (Do this first!)
+======================================================
+1. Enter your contact email
+2. Click "Verify" button
+3. Check your email and click verification link
+4. Wait for verification to complete
+
+======================================================
+QUICK CHECKLIST
+======================================================
+☐ Account Tab: Email entered and verified
+☐ Privacy Tab: Single purpose description filled
+☐ Privacy Tab: Host permissions justified
+☐ Privacy Tab: Storage permission justified
+☐ Privacy Tab: Remote code justified
+☐ Privacy Tab: Data certification checkbox checked
+☐ Privacy Tab: Privacy policy URL added
+☐ All required fields show green checkmarks
