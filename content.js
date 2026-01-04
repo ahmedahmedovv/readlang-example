@@ -30,13 +30,18 @@ function addButton() {
   if (document.getElementById('moreExamplesBtn')) return;
 
   const container = document.getElementById('contextContainer');
-  if (!container) return;
+  if (!container) {
+    console.log('[Readlang Extension] contextContainer not found yet, waiting...');
+    return;
+  }
 
   const btn = document.createElement('button');
   btn.id = 'moreExamplesBtn';
   btn.textContent = 'More Examples';
   btn.onclick = getExamples;
   container.after(btn);
+  
+  console.log('[Readlang Extension] Button added successfully');
 }
 
 async function getExamples() {
@@ -49,14 +54,30 @@ async function getExamples() {
   document.getElementById('examplesBox')?.remove();
 
   try {
-    const { provider = 'mistral', apiKey, model } = await chrome.storage.sync.get(['provider', 'apiKey', 'model']);
+    // Debug: Log storage operation
+    console.log('[Readlang Extension] Attempting to read from chrome.storage.sync');
+    
+    const storageData = await chrome.storage.sync.get(['provider', 'apiKey', 'model']);
+    
+    console.log('[Readlang Extension] Storage data received:', {
+      hasProvider: !!storageData.provider,
+      hasApiKey: !!storageData.apiKey,
+      hasModel: !!storageData.model
+    });
+
+    const provider = storageData.provider || 'mistral';
+    const apiKey = storageData.apiKey;
+    const model = storageData.model;
 
     if (!apiKey) {
+      console.warn('[Readlang Extension] No API key found in storage');
       alert('Please set your API key in the extension settings (click the extension icon)');
       btn.textContent = 'More Examples';
       btn.disabled = false;
       return;
     }
+
+    console.log('[Readlang Extension] Using provider:', provider);
 
     const config = PROVIDERS[provider];
     const useModel = model || config.model;
@@ -89,15 +110,15 @@ async function getExamples() {
       body
     });
 
-    const data = await res.json();
+    const responseData = await res.json();
 
     let text;
     if (provider === 'claude') {
-      text = data.content[0].text;
+      text = responseData.content[0].text;
     } else if (provider === 'gemini') {
-      text = data.candidates[0].content.parts[0].text;
+      text = responseData.candidates[0].content.parts[0].text;
     } else {
-      text = data.choices[0].message.content;
+      text = responseData.choices[0].message.content;
     }
 
     const box = document.createElement('div');
@@ -112,14 +133,69 @@ async function getExamples() {
   btn.disabled = false;
 }
 
-// Watch for card changes and remove old examples
-const observer = new MutationObserver(() => {
-  addButton();
+// Prevent multiple injections
+if (window.readlangExtensionLoaded) {
+  console.log('[Readlang Extension] Already loaded, skipping');
+} else {
+  window.readlangExtensionLoaded = true;
+  
+  // Debug: Verify extension loaded and check storage on page load
+  console.log('[Readlang Extension] Content script loaded on:', window.location.href);
+
+  // Check if storage has API key on page load (for debugging)
+  chrome.storage.sync.get(['provider', 'apiKey', 'model']).then(data => {
+    console.log('[Readlang Extension] Page load storage check:', {
+      hasProvider: !!data.provider,
+      hasApiKey: !!data.apiKey,
+      hasModel: !!data.model,
+      provider: data.provider,
+      model: data.model
+    });
+  }).catch(err => {
+    console.error('[Readlang Extension] Storage check failed:', err);
+  });
+}
+
+// Enhanced observer for Readlang's dynamic content
+const observer = new MutationObserver((mutations) => {
+  // Check if contextContainer exists
+  const container = document.getElementById('contextContainer');
+  if (container) {
+    addButton();
+  }
+  
+  // Check if word card changed
   const wordCard = document.getElementById('wordCardText');
   if (wordCard && wordCard.textContent !== observer.lastWord) {
     observer.lastWord = wordCard.textContent;
     document.getElementById('examplesBox')?.remove();
+    console.log('[Readlang Extension] Word changed to:', observer.lastWord);
   }
 });
-observer.observe(document.body, { childList: true, subtree: true });
+
+// Start observing
+observer.observe(document.body, { 
+  childList: true, 
+  subtree: true,
+  attributes: false,
+  characterData: false
+});
+
+// Also try to add button immediately
 addButton();
+
+// Set up a retry mechanism for the first few seconds (handles slow loading)
+let retryCount = 0;
+const maxRetries = 10;
+const retryInterval = setInterval(() => {
+  const container = document.getElementById('contextContainer');
+  if (container) {
+    console.log('[Readlang Extension] Container found on retry', retryCount);
+    addButton();
+    clearInterval(retryInterval);
+  } else if (retryCount >= maxRetries) {
+    console.log('[Readlang Extension] Max retries reached, stopping');
+    clearInterval(retryInterval);
+  }
+  retryCount++;
+}, 500);
